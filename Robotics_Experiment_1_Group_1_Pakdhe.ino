@@ -33,7 +33,7 @@ int putih = 800;
 #define in3 7
 #define in4 6
 
-int leapTime1 = 2 * 1;
+int leapTime1 = 10;
 int leapTime2 = 2 * 4;
 
 
@@ -95,11 +95,65 @@ void loop() {
   //   analogWrite(enB, i);
   //   delay(20);
   // }
-
+  // delay(12);
+  // delay(6);
   bacaSensor_pakdhe();
-  FL_Pakdhe();
-  sikuLeft_Pakdhe();
-  sikuRight_Pakdhe();
+
+  // setMD_pakdhe(1, 1);
+  // kontrolKecMot_pakdhe(255, 0);
+  // delay(2000);
+  // setMD_pakdhe(1, 1);
+  // kontrolKecMot_pakdhe(0, 255);
+  // delay(2000);
+
+  if (s4 > item && s5 > item) {
+    setMD_pakdhe(1, 1);
+    kontrolKecMot_pakdhe(255, 255);
+    bacaSensor_pakdhe();
+  } 
+  else if (s4 < putih && s5 > item) {
+    setMD_pakdhe(1, 1);
+    kontrolKecMot_pakdhe(255, 100);
+    bacaSensor_pakdhe();
+  } 
+  else if (s4 > item && s5 < putih) {
+    setMD_pakdhe(1, 1);
+    kontrolKecMot_pakdhe(100, 255);
+    bacaSensor_pakdhe();
+  }
+  if (s1 > item && s2 > item && s7 < putih && s8 < putih) {
+    setMD_pakdhe(1, 1);
+    kontrolKecMot_pakdhe(48, 48);
+    delay(9);
+    while (true) {
+      bacaSensor_pakdhe();
+      setMD_pakdhe(2, 1);
+      kontrolKecMot_pakdhe(100, 255);
+      delay(leapTime1);
+      if (s4 > item || s5 > item) {
+        break;
+      }
+    }
+  } 
+   if (s1 < putih && s2 < putih && s7 > item && s8 > item) {
+    setMD_pakdhe(1, 1);
+    kontrolKecMot_pakdhe(48, 48);
+    delay(9);
+    while (true) {
+      bacaSensor_pakdhe();
+      setMD_pakdhe(1, 2);
+      kontrolKecMot_pakdhe(255, 100);
+      delay(leapTime1);
+      if (s4 > item || s5 > item) {
+        break;
+      }
+    }
+  }
+  // else done();
+
+  // FL_Pakdhe();
+  // sikuLeft_Pakdhe();
+  // sikuRight_Pakdhe();
 }
 
 void tampilinSensor_pakdhe(int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8) {
@@ -148,7 +202,7 @@ void bacaSensor_pakdhe() {
   // int sMin = minVal(s1, s2, s3, s4, s5, s6, s7, s8);
 
   // tampilinSensor_pakdhe(s1, s2, s3, s4, s5, s6, s7, s8);
-  delay(leapTime1);
+  delay(4);
 }
 
 void kontrolKecMot_pakdhe(int x1, int x2) {
