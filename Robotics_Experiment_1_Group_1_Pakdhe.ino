@@ -1,289 +1,188 @@
-#define ir1 A7
-#define ir2 A6
-#define ir3 A5
-#define ir4 A4
-#define ir5 A3
-#define ir6 A2
-#define ir7 A1
-#define ir8 A0
+// Define IR sensor pins
+#define IR1 A5
+#define IR2 A2
+#define IR3 A7
+#define IR4 A4
+#define IR5 A3
+#define IR6 A6
+#define IR7 A1
+#define IR8 A0
 
-int s1 = 0;
-int s2 = 0;
-int s3 = 0;
-int s4 = 0;
-int s5 = 0;
-int s6 = 0;
-int s7 = 0;
-int s8 = 0;
+// Define motor control pins
+#define EN_A 3
+#define IN1 2
+#define IN2 4
+#define EN_B 5
+#define IN3 7
+#define IN4 6
 
-const int sensorMin = 490;
-const int sensorMax = 1000;
+// Initialize sensor values
+int sensor1 = 0;
+int sensor2 = 0;
+int sensor3 = 0;
+int sensor4 = 0;
+int sensor5 = 0;
+int sensor6 = 0;
+int sensor7 = 0;
+int sensor8 = 0;
 
-const int outputMin = 0;
-const int outputMax = 1000;
+// Define threshold values
+const int blackThreshold = 800;
+const int whiteThreshold = 800;
 
-int item = 800;
-int putih = 800;
+// Define time delays
+const int leapTime = 13;
 
-#define enA 3
-#define in1 2
-#define in2 4
-
-#define enB 5
-#define in3 7
-#define in4 6
-
-int leapTime1 = 10;
-int leapTime2 = 2 * 4;
-
-
-void bacaSensor_pakdhe();
-void tampilinSensor_pakdhe(int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8);
-void kontrolKecMot_pakdhe(int x1, int x2);
-void setMD_pakdhe_pakdhe(int y1, int y2);
-void sikuLeft_Pakdhe();
-void sikuRight_Pakdhe();
-void FL_Pakdhe();
-void done();
-
+// Function declarations
+void readSensors_pakdhe();
+void displaySensorValues_pakdhe(int s1, int s2, int s3, int s4, int s5, int s6, int s7);
+void controlMotorSpeed_pakdhe(int leftSpeed, int rightSpeed);
+void setMotorDirection_pakdhe(int leftDir, int rightDir);
+void initializeSensors_pakdhe();
+void initializeMotors_pakdhe();
 
 void setup() {
-  // put your setup code here, to run once:
+  // Initialize serial communication
   Serial.begin(9600);
 
-  pinMode(ir1, INPUT);
-  pinMode(ir2, INPUT);
-  pinMode(ir3, INPUT);
-  pinMode(ir4, INPUT);
-  pinMode(ir5, INPUT);
-  pinMode(ir6, INPUT);
-  pinMode(ir7, INPUT);
-  pinMode(ir8, INPUT);
+  // Initialize sensors and motors
+  initializeSensors_pakdhe();
+  initializeMotors_pakdhe();
 
-  pinMode(enA, OUTPUT);
-  pinMode(in1, OUTPUT);
-  pinMode(in2, OUTPUT);
-
-  pinMode(enB, OUTPUT);
-  pinMode(in3, OUTPUT);
-  pinMode(in4, OUTPUT);
+  // Give a delay for initial setup
+  delay(500);
 }
 
 void loop() {
-  // digitalWrite(in1, LOW);
-  // digitalWrite(in2, HIGH);
-  // digitalWrite(in3, LOW);
-  // digitalWrite(in4, HIGH);
-  // analogWrite(enA, 255);
-  // analogWrite(enB, 255);
-  // delay(2000);
+  // Read the sensor values
+  readSensors_pakdhe();
 
-  // digitalWrite(in1, LOW);
-  // digitalWrite(in2, HIGH);
-  // digitalWrite(in3, LOW);
-  // digitalWrite(in4, HIGH);
-  // analogWrite(enA, 99);
-  // analogWrite(enB, 99);
-  // delay(2000);
-
-  // for (int i = 0; i < putih; i++) {
-  //   digitalWrite(in1, HIGH);
-  //   digitalWrite(in2, LOW);
-  //   digitalWrite(in3, HIGH);
-  //   digitalWrite(in4, LOW);
-  //   analogWrite(enA, i);
-  //   analogWrite(enB, i);
-  //   delay(20);
-  // }
-  // delay(12);
-  // delay(6);
-  bacaSensor_pakdhe();
-
-  // setMD_pakdhe(1, 1);
-  // kontrolKecMot_pakdhe(255, 0);
-  // delay(2000);
-  // setMD_pakdhe(1, 1);
-  // kontrolKecMot_pakdhe(0, 255);
-  // delay(2000);
-
-  if (s4 > item && s5 > item) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(255, 255);
-    bacaSensor_pakdhe();
-  } 
-  else if (s4 < putih && s5 > item) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(255, 100);
-    bacaSensor_pakdhe();
-  } 
-  else if (s4 > item && s5 < putih) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(100, 255);
-    bacaSensor_pakdhe();
+  // Main logic for line following based on sensor readings
+  if (sensor4 > blackThreshold && sensor5 > blackThreshold) {
+    setMotorDirection_pakdhe(1, 1);
+    controlMotorSpeed_pakdhe(255, 255);
+  } else if (sensor4 < whiteThreshold && sensor5 > blackThreshold) {
+    setMotorDirection_pakdhe(1, 1);
+    controlMotorSpeed_pakdhe(255, 170);
+  } else if (sensor4 > blackThreshold && sensor5 < whiteThreshold) {
+    setMotorDirection_pakdhe(1, 1);
+    controlMotorSpeed_pakdhe(170, 255);
   }
-  if (s1 > item && s2 > item && s7 < putih && s8 < putih) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(48, 48);
-    delay(9);
+
+  // Handle intersection scenarios
+  if (sensor1 > blackThreshold && sensor2 > blackThreshold && sensor6 < whiteThreshold) {
+    setMotorDirection_pakdhe(1, 1);
+    controlMotorSpeed_pakdhe(71, 71);
+    // delay(9);
     while (true) {
-      bacaSensor_pakdhe();
-      setMD_pakdhe(2, 1);
-      kontrolKecMot_pakdhe(100, 255);
-      delay(leapTime1);
-      if (s4 > item || s5 > item) {
-        break;
-      }
-    }
-  } 
-   if (s1 < putih && s2 < putih && s7 > item && s8 > item) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(48, 48);
-    delay(9);
-    while (true) {
-      bacaSensor_pakdhe();
-      setMD_pakdhe(1, 2);
-      kontrolKecMot_pakdhe(255, 100);
-      delay(leapTime1);
-      if (s4 > item || s5 > item) {
+      readSensors_pakdhe();
+      setMotorDirection_pakdhe(2, 1);
+      controlMotorSpeed_pakdhe(230, 255);
+      if (sensor4 > blackThreshold || sensor5 > blackThreshold) {
         break;
       }
     }
   }
-  // else done();
-
-  // FL_Pakdhe();
-  // sikuLeft_Pakdhe();
-  // sikuRight_Pakdhe();
+  if (sensor1 < whiteThreshold && sensor2 < whiteThreshold && sensor6 > blackThreshold) {
+    setMotorDirection_pakdhe(1, 1);
+    controlMotorSpeed_pakdhe(71, 71);
+    // delay(9);
+    while (true) {
+      readSensors_pakdhe();
+      setMotorDirection_pakdhe(1, 2);
+      controlMotorSpeed_pakdhe(255, 230);
+      if (sensor4 > blackThreshold || sensor5 > blackThreshold) {
+        break;
+      }
+    }
+  }
 }
 
-void tampilinSensor_pakdhe(int p1, int p2, int p3, int p4, int p5, int p6, int p7, int p8) {
+// Initialize IR sensor pins
+void initializeSensors_pakdhe() {
+  pinMode(IR1, INPUT);
+  pinMode(IR2, INPUT);
+  pinMode(IR3, INPUT);
+  pinMode(IR4, INPUT);
+  pinMode(IR5, INPUT);
+  pinMode(IR6, INPUT);
+  pinMode(IR7, INPUT);
+  pinMode(IR8, INPUT);
+}
+
+// Display sensor values on Serial Monitor
+void displaySensorValues_pakdhe(int s1, int s2, int s3, int s4, int s5, int s6, int s7) {
   Serial.print("s1 = ");
-  Serial.print(p1);
+  Serial.print(s1);
   Serial.print(", s2 = ");
-  Serial.print(p2);
+  Serial.print(s2);
   Serial.print(", s3 = ");
-  Serial.print(p3);
+  Serial.print(s3);
   Serial.print(", s4 = ");
-  Serial.print(p4);
-  Serial.print(" s5 = ");
-  Serial.print(p5);
+  Serial.print(s4);
+  Serial.print(", s5 = ");
+  Serial.print(s5);
   Serial.print(", s6 = ");
-  Serial.print(p6);
+  Serial.print(s6);
   Serial.print(", s7 = ");
-  Serial.print(p7);
-  Serial.print(", s8 = ");
-  Serial.println(p8);
-  // Serial.print(", max = ");
-  // Serial.print(sMax);
-  // Serial.print(", min = ");
-  // Serial.println(sMin);
+  Serial.println(s7);
+  // Serial.print(", s8 = ");
+  // Serial.println(s8);
+  delay(200);
 }
 
-void bacaSensor_pakdhe() {
-  // s1 = map(analogRead(ir1), sensorMin, sensorMax, outputMin, outputMax);
-  // s2 = map(analogRead(ir2), sensorMin, sensorMax, outputMin, outputMax);
-  // s3 = map(analogRead(ir3), sensorMin, sensorMax, outputMin, outputMax);
-  // s4 = map(analogRead(ir4), sensorMin, sensorMax, outputMin, outputMax);
-  // s5 = map(analogRead(ir5), sensorMin, sensorMax, outputMin, outputMax);
-  // s6 = map(analogRead(ir6), sensorMin, sensorMax, outputMin, outputMax);
-  // s7 = map(analogRead(ir7), sensorMin, sensorMax, outputMin, outputMax);
-  // s8 = map(analogRead(ir8), sensorMin, sensorMax, outputMin, outputMax);
+// Read sensor values
+void readSensors_pakdhe() {
+  delay(leapTime);
+  sensor1 = analogRead(IR1);
+  sensor2 = analogRead(IR2);
+  sensor3 = analogRead(IR3);
+  sensor4 = analogRead(IR4);
+  sensor5 = analogRead(IR5);
+  sensor6 = analogRead(IR6);
+  sensor7 = analogRead(IR7);
+  // sensor8 = analogRead(IR8);
 
-  s1 = analogRead(ir1);
-  s2 = analogRead(ir2);
-  s3 = analogRead(ir3);
-  s4 = analogRead(ir4);
-  s5 = analogRead(ir5);
-  s6 = analogRead(ir6);
-  s7 = analogRead(ir7);
-  s8 = analogRead(ir8);
-
-  // int sMax = maxVal(s1, s2, s3, s4, s5, s6, s7, s8);
-  // int sMin = minVal(s1, s2, s3, s4, s5, s6, s7, s8);
-
-  // tampilinSensor_pakdhe(s1, s2, s3, s4, s5, s6, s7, s8);
-  delay(4);
+  // Uncomment the line below to display sensor values
+  // displaySensorValues_pakdhe(sensor1, sensor2, sensor3, sensor4, sensor5, sensor6, sensor7);
 }
 
-void kontrolKecMot_pakdhe(int x1, int x2) {
-  analogWrite(enA, x1);
-  analogWrite(enB, x2);
+// Control the speed of the motors
+void controlMotorSpeed_pakdhe(int leftSpeed, int rightSpeed) {
+  analogWrite(EN_A, leftSpeed);
+  analogWrite(EN_B, rightSpeed);
 }
 
-void setMD_pakdhe(int y1, int y2) {
-  if (y1 == 1) {
-    digitalWrite(in1, HIGH);
-    digitalWrite(in2, LOW);
-  } else if (y1 == 2) {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, HIGH);
-  } else if (y1 == 3) {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, LOW);
+// Set the direction of the motors
+void setMotorDirection_pakdhe(int leftDir, int rightDir) {
+  if (leftDir == 1) {
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+  } else if (leftDir == 2) {
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+  } else if (leftDir == 3) {
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
   }
-  if (y2 == 1) {
-    digitalWrite(in3, HIGH);
-    digitalWrite(in4, LOW);
-  } else if (y2 == 2) {
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, HIGH);
-  } else if (y2 == 3) {
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, LOW);
+  if (rightDir == 1) {
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
+  } else if (rightDir == 2) {
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+  } else if (rightDir == 3) {
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
   }
 }
 
-void done() {
-  setMD_pakdhe(3, 3);
-  kontrolKecMot_pakdhe(0, 0);
-}
-
-void sikuLeft_Pakdhe() {
-  if (s1 > item && s2 > item && s7 < putih && s8 < putih) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(100, 100);
-    delay(leapTime1);
-    while (true) {
-      bacaSensor_pakdhe();
-      setMD_pakdhe(2, 1);
-      kontrolKecMot_pakdhe(255, 100);
-      delay(leapTime1);
-      if (s4 > item || s5 > item) {
-        break;
-      }
-    }
-  }
-}
-
-void sikuRight_Pakdhe() {
-  if (s1 < putih && s2 < putih && s7 > item && s8 > item) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(100, 100);
-    delay(leapTime1);
-    while (true) {
-      bacaSensor_pakdhe();
-      setMD_pakdhe(1, 2);
-      kontrolKecMot_pakdhe(255, 100);
-      delay(leapTime1);
-      if (s4 > item || s5 > item) {
-        break;
-      }
-    }
-  }
-}
-
-void FL_Pakdhe() {
-  if (s4 > item && s5 > item) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(255, 255);
-    bacaSensor_pakdhe();
-  } else if (s4 < putih && s5 > item) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(255, 100);
-    bacaSensor_pakdhe();
-  } else if (s4 > item && s5 < putih) {
-    setMD_pakdhe(1, 1);
-    kontrolKecMot_pakdhe(100, 255);
-    bacaSensor_pakdhe();
-  }
+// Initialize motor control pins
+void initializeMotors_pakdhe() {
+  pinMode(EN_A, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(EN_B, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
 }
