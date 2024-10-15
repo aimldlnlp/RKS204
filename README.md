@@ -1,4 +1,4 @@
-# Line Following Robot with Intersection Handling
+# Line Following Robot
 
 **Course:** RKS204: Robotics Experiment 1
 
